@@ -18,15 +18,3 @@ $  git submodule add --force git@github.com:jetlinks/edge-core.git expands-compo
     <module>expands-components/jetlinks-edge/edge-core</module>
 </modules>
 ```
-
-3. 在启动模块中引入依赖
-
-```xml
-<dependency>
-    <groupId>org.jetlinks.pro</groupId>
-    <artifactId>edge-master</artifactId>
-    <version>${project.version}</version>
-</dependency>
-```
-
-4. 重新编译启动即可
