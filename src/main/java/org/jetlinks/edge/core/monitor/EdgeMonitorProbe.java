@@ -42,7 +42,7 @@ public class EdgeMonitorProbe {
     private double usedCpu;
     private double waitCpu;
     private double freeCpu;
-
+    private double cpuTemperature;
     /**
      * <li>内存总量</li>
      * <li>已用内存</li>
@@ -81,6 +81,11 @@ public class EdgeMonitorProbe {
         this.setMemInfo(hardware.getMemory());
         this.setIpAddr(NetUtil.getLocalhostStr());
         this.setSysFiles(systemInfo.getOperatingSystem());
+        this.setCpuTemperature(
+            systemInfo.getHardware()
+                      .getSensors()
+                      .getCpuTemperature()
+        );
     }
 
     /**

@@ -19,14 +19,15 @@ import java.util.Optional;
 public class EdgeRunningState {
 
     //百分比数值
-    private double cpuUsage;
+    private float cpuUsage;
 
-    private double jvmMemUsage;
+    private float jvmMemUsage;
 
-    private double sysMemUsage;
+    private float sysMemUsage;
 
-    private double diskUsage;
+    private float diskUsage;
 
+    private float cpuTemp;
     // TODO: 2021/2/25 更多运行状态信息
 
 
