@@ -48,6 +48,13 @@ public class EdgeOperationsController {
         return edgeOperations.edgeDeviceInfo(deviceId);
     }
 
+    @GetMapping(value = "/localDevice/detail")
+    @ResourceAction(id = "local-device-info", name = "本地网关详情")
+    public Mono<Object> edgeDeviceInfo() {
+        // 从网关本地直接获取网关硬件信息，包括设备id等
+        return edgeOperations.edgeDeviceInfo("localDeviceId");
+    }
+
 
     @GetMapping(value = "/{deviceId}/property/{property}")
     @ResourceAction(id = "device-property-state", name = "设备属性状态")
