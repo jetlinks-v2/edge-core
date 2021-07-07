@@ -4,10 +4,14 @@ package org.jetlinks.edge.core.entity;
  * @author FCG
  */
 
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hswebframework.web.api.crud.entity.GenericEntity;
+import org.jetlinks.core.device.DeviceInfo;
+import org.jetlinks.core.device.DeviceStateInfo;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -20,6 +24,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Table(name = "dev_edge_info")
+@Slf4j
 public class EdgeInfoEntity extends GenericEntity<String> {
 
     @Schema(description = "网关名称")
@@ -65,4 +70,17 @@ public class EdgeInfoEntity extends GenericEntity<String> {
     @Schema(description = "是否连接平台")
     @Column()
     private boolean connected;
+
+    public static EdgeInfoEntity convertDeviceInfoToEdgeInfo(Object jsonObject) {
+
+        JSONObject json = (JSONObject) jsonObject;
+        EdgeInfoEntity edgeInfoEntity = new EdgeInfoEntity();
+
+        // 可以写入更多数据
+        edgeInfoEntity.setDeviceId(json.getString("id"));
+        edgeInfoEntity.setProductId(json.getString("productId"));
+        edgeInfoEntity.setConnected("online".equals(json.getJSONObject("state").getString("value")));
+
+        return edgeInfoEntity;
+    }
 }
