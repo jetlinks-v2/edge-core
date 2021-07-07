@@ -66,6 +66,7 @@ public class EdgeRunningState {
         state.setDiskUsage(new PropertyInfo(getPercentFormat(this.getDiskUsage()), this.getDiskUsage(), "磁盘使用率"));
         state.setSysMemUsage(new PropertyInfo(getPercentFormat(this.getSysMemUsage()), this.getSysMemUsage(), "系统内存使用率"));
         state.setCpuTemp(new PropertyInfo(getPercentFormat(this.getCpuTemp()), this.getCpuTemp(), "CPU温度"));
+        state.setJvmMemUsage(new PropertyInfo(getPercentFormat(this.getJvmMemUsage()), this.getJvmMemUsage(), "JVM内存使用率"));
         return state;
     }
 

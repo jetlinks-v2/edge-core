@@ -1,6 +1,6 @@
 package org.jetlinks.edge.core.entity;
 
-/**
+/*
  * @author FCG
  */
 
@@ -13,7 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 
 /**
- * 网关一些信息，前端展示和配置时用
+ * 网关硬件信息
  *
  * @author FCG
  */
@@ -35,7 +35,7 @@ public class EdgeInfoEntity extends GenericEntity<String> {
     private String osInfo;
 
     @Schema(description = "网关地理位置信息")
-    @Column(nullable = false)
+    @Column()
     private String geoAdder;
 
     @Schema(description = "网关在平台的产品id")
@@ -61,4 +61,8 @@ public class EdgeInfoEntity extends GenericEntity<String> {
     @Schema(description = "平台端口")
     @Column(nullable = false)
     private int port;
+
+    @Schema(description = "是否连接平台")
+    @Column()
+    private boolean connected;
 }
