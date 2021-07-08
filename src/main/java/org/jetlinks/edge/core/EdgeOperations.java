@@ -1,5 +1,6 @@
 package org.jetlinks.edge.core;
 
+import org.jetlinks.edge.core.entity.EdgeInfoDetail;
 import org.jetlinks.edge.core.monitor.EdgeRunningState;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -55,6 +56,6 @@ public interface EdgeOperations {
      *
      * @param edgeDeviceId 边缘网关设备ID
      */
-    Mono<Object> edgeDeviceInfo(String edgeDeviceId);
+    Mono<EdgeInfoDetail> edgeDeviceInfo(String edgeDeviceId);
 
 }

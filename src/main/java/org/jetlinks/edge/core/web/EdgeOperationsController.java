@@ -3,6 +3,7 @@ package org.jetlinks.edge.core.web;
 import org.hswebframework.web.authorization.annotation.Resource;
 import org.hswebframework.web.authorization.annotation.ResourceAction;
 import org.jetlinks.edge.core.EdgeOperations;
+import org.jetlinks.edge.core.entity.EdgeInfoDetail;
 import org.jetlinks.edge.core.monitor.EdgeRunningState;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -44,10 +45,9 @@ public class EdgeOperationsController {
 
     @GetMapping(value = "/{deviceId}/detail")
     @ResourceAction(id = "device-info", name = "网关详情")
-    public Mono<Object> edgeDeviceInfo(@PathVariable String deviceId) {
+    public Mono<EdgeInfoDetail> edgeDeviceInfo(@PathVariable String deviceId) {
         return edgeOperations.edgeDeviceInfo(deviceId);
     }
-
 
     @GetMapping(value = "/{deviceId}/property/{property}")
     @ResourceAction(id = "device-property-state", name = "设备属性状态")
