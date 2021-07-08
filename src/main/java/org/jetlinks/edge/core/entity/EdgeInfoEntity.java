@@ -85,19 +85,4 @@ public class EdgeInfoEntity extends GenericEntity<String> {
 
         return edgeInfoEntity;
     }
-
-    /**
-     * @author 仅允许修改的字段
-     * @date 2021/7/8 14:22
-     * @version 1.0
-     */
-    public Mono<EdgeInfoEntity> merge(EdgeInfoEntity entity) {
-        this.setProductId(ObjectUtil.isNotEmpty(entity.getProductId()) ? entity.getProductId() : this.getProductId());
-        this.setDeviceId(ObjectUtil.isNotEmpty(entity.getDeviceId()) ? entity.getDeviceId() : this.getDeviceId());
-        this.setSecureId(ObjectUtil.isNotEmpty(entity.getSecureId()) ? entity.getSecureId() : this.getSecureId());
-        this.setSecureKey(ObjectUtil.isNotEmpty(entity.getSecureKey()) ? entity.getSecureKey() : this.getSecureKey());
-        this.setHost(ObjectUtil.isNotEmpty(entity.getHost()) ? entity.getHost() : this.getProductId());
-        this.setPort(ObjectUtil.isNotEmpty(entity.getPort()) ? entity.getPort() : this.getPort());
-        return Mono.just(this);
-    }
 }
