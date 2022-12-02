@@ -45,20 +45,21 @@ public class EdgeOperationsController {
     @ResourceAction(id = "invoke", name = "调用功能")
     @Operation(summary = "批量调用功能")
     public Flux<Object> invokeFunction(@PathVariable String functionId,
-                                       @RequestBody(required = false) Mono<BatchOperationRequest> request) {
-        return request
-            .flatMapMany(req -> Flux
-                .fromIterable(req.getDeviceId())
-                .buffer(200)
-                .flatMap(Flux::fromIterable)
-                .flatMap(deviceId -> this
-                    .invokeFunction(functionId, deviceId, Mono.justOrEmpty(req.getParams()))
-                    .map(BatchOperationResult::success)
-                    .switchIfEmpty(LocaleUtils
-                        .currentReactive()
-                        .map(locale -> BatchOperationResult
-                            .fail(LocaleUtils.resolveMessage("error.edge_device_not_exist", locale) + " deviceId: " + deviceId)))
-                    .onErrorResume(err -> Mono.just(BatchOperationResult.fail(err.getLocalizedMessage())))));
+                                       @RequestParam @Schema(description = "设备ID") List<String> deviceId,
+                                       @RequestParam(required = false)
+                                       @Schema(description = "功能输入参数") Map<String, Object> params) {
+        return Flux
+            .fromIterable(deviceId)
+            .buffer(200)
+            .flatMap(Flux::fromIterable)
+            .flatMap(id -> this
+                .invokeFunction(functionId, id, Mono.justOrEmpty(params))
+                .map(BatchOperationResult::success)
+                .switchIfEmpty(LocaleUtils
+                    .currentReactive()
+                    .map(locale -> BatchOperationResult
+                        .fail(LocaleUtils.resolveMessage("error.edge_device_not_exist", locale) + " deviceId: " + deviceId)))
+                .onErrorResume(err -> Mono.just(BatchOperationResult.fail(err.getLocalizedMessage()))));
     }
 
     @GetMapping(value = "/{deviceId}/state", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
