@@ -1,5 +1,6 @@
 package org.jetlinks.edge.core.web;
 
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -44,16 +45,18 @@ public class EdgeOperationsController {
     @GetMapping(value = "/{functionId}/invoke/_batch", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResourceAction(id = "invoke", name = "调用功能")
     @Operation(summary = "批量调用功能")
+    @SuppressWarnings("unchecked")
     public Flux<Object> invokeFunction(@PathVariable String functionId,
                                        @RequestParam @Schema(description = "设备ID") List<String> deviceId,
                                        @RequestParam(required = false)
-                                       @Schema(description = "功能输入参数") Map<String, Object> params) {
+                                       @Schema(description = "功能输入参数，json格式url编码") String params) {
+        Map<String, Object> paramMap = JSONObject.parseObject(params, Map.class);
         return Flux
             .fromIterable(deviceId)
             .buffer(200)
             .flatMap(Flux::fromIterable)
             .flatMap(id -> this
-                .invokeFunction(functionId, id, Mono.justOrEmpty(params))
+                .invokeFunction(functionId, id, Mono.justOrEmpty(paramMap))
                 .map(BatchOperationResult::success)
                 .switchIfEmpty(LocaleUtils
                     .currentReactive()
