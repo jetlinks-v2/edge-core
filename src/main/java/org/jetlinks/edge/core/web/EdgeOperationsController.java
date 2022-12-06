@@ -1,7 +1,14 @@
 package org.jetlinks.edge.core.web;
 
+import com.alibaba.fastjson.JSONObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.hswebframework.web.authorization.annotation.Resource;
 import org.hswebframework.web.authorization.annotation.ResourceAction;
+import org.hswebframework.web.i18n.LocaleUtils;
 import org.jetlinks.edge.core.EdgeOperations;
 import org.jetlinks.edge.core.entity.EdgeInfoDetail;
 import org.jetlinks.edge.core.monitor.EdgeRunningState;
@@ -11,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,6 +42,29 @@ public class EdgeOperationsController {
             .flatMapMany(param -> edgeOperations.invokeFunction(deviceId, functionId, param));
     }
 
+    @GetMapping(value = "/{functionId}/invoke/_batch", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ResourceAction(id = "invoke", name = "调用功能")
+    @Operation(summary = "批量调用功能")
+    @SuppressWarnings("unchecked")
+    public Flux<Object> invokeFunction(@PathVariable String functionId,
+                                       @RequestParam @Schema(description = "设备ID") List<String> deviceId,
+                                       @RequestParam(required = false)
+                                       @Schema(description = "功能输入参数，json格式url编码") String params) {
+        Map<String, Object> paramMap = JSONObject.parseObject(params, Map.class);
+        return Flux
+            .fromIterable(deviceId)
+            .buffer(200)
+            .flatMap(Flux::fromIterable)
+            .flatMap(id -> this
+                .invokeFunction(functionId, id, Mono.justOrEmpty(paramMap))
+                .map(BatchOperationResult::success)
+                .switchIfEmpty(LocaleUtils
+                    .currentReactive()
+                    .map(locale -> BatchOperationResult
+                        .fail(LocaleUtils.resolveMessage("error.edge_device_not_exist", locale) + " deviceId: " + deviceId)))
+                .onErrorResume(err -> Mono.just(BatchOperationResult.fail(err.getLocalizedMessage()))));
+    }
+
     @GetMapping(value = "/{deviceId}/state", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResourceAction(id = "listen-state", name = "监听运行状态")
     public Flux<EdgeRunningState.FormatEdgeRunningState> listenState(@PathVariable String deviceId) {
@@ -53,5 +84,54 @@ public class EdgeOperationsController {
     @ResourceAction(id = "device-property-state", name = "设备属性状态")
     public Mono<Object> devicePropertySate(@PathVariable String deviceId, @PathVariable String property) {
         return edgeOperations.getDevicePropertySate(deviceId, property);
+    }
+
+    @Getter
+    @Setter
+    public static class BatchOperationRequest {
+
+        @Schema(description = "设备ID")
+        List<String> deviceId;
+
+        @Schema(description = "功能输入参数")
+        Map<String, Object> params;
+
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class BatchOperationResult {
+
+        @Schema(description = "功能的输出值")
+        private Object result;
+
+        @Schema(description = "是否成功")
+        private boolean successful;
+
+        @Schema(description = "错误消息")
+        private String message;
+
+        @Schema(description = "时间")
+        private long time;
+
+        public static BatchOperationResult success(Object result) {
+            return BatchOperationResult
+                .builder()
+                .successful(true)
+                .time(System.currentTimeMillis())
+                .result(result)
+                .build();
+        }
+
+        public static BatchOperationResult fail(String message) {
+            return BatchOperationResult
+                .builder()
+                .successful(false)
+                .time(System.currentTimeMillis())
+                .message(message)
+                .build();
+        }
+
     }
 }
