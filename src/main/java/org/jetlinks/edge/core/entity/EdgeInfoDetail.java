@@ -54,6 +54,9 @@ public class EdgeInfoDetail {
     @Schema(description = "穿透端口")
     private int penetrationPort;
 
+    @Schema(description = "穿透token")
+    private String penetrationToken;
+
     @Schema(description = "离线缓存")
     private boolean offlineCache;
 
