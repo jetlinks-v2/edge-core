@@ -2,6 +2,9 @@ package org.jetlinks.edge.core.monitor;
 
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 边缘设备监控信息
  *
@@ -16,5 +19,7 @@ public interface EdgeMonitor {
      * @return 运行状态
      */
     Mono<EdgeRunningState> getRunningState();
+
+    Mono<Map<String, Object>> getSceneTriggerNum(List<Integer> triggerDay);
 
 }
