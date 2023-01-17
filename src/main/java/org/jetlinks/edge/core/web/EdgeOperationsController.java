@@ -46,7 +46,7 @@ public class EdgeOperationsController {
     @ResourceAction(id = "invoke", name = "调用功能")
     @Operation(summary = "批量调用功能")
     @SuppressWarnings("unchecked")
-    public Flux<Object> invokeFunction(@PathVariable String functionId,
+    public Flux<BatchOperationResult> invokeFunction(@PathVariable String functionId,
                                        @RequestParam @Schema(description = "设备ID") List<String> deviceId,
                                        @RequestParam(required = false)
                                        @Schema(description = "功能输入参数，json格式url编码") String params) {
@@ -57,12 +57,12 @@ public class EdgeOperationsController {
             .flatMap(Flux::fromIterable)
             .flatMap(id -> this
                 .invokeFunction(functionId, id, Mono.justOrEmpty(paramMap))
-                .map(BatchOperationResult::success)
+                .map(result -> BatchOperationResult.success(id, result))
                 .switchIfEmpty(LocaleUtils
                     .currentReactive()
                     .map(locale -> BatchOperationResult
-                        .fail(LocaleUtils.resolveMessage("error.edge_device_not_exist", locale) + " deviceId: " + deviceId)))
-                .onErrorResume(err -> Mono.just(BatchOperationResult.fail(err.getLocalizedMessage()))));
+                        .fail(id, LocaleUtils.resolveMessage("error.edge_device_not_exist", locale))))
+                .onErrorResume(err -> Mono.just(BatchOperationResult.fail(id, err.getLocalizedMessage()))));
     }
 
     @GetMapping(value = "/{deviceId}/state", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -103,6 +103,9 @@ public class EdgeOperationsController {
     @Builder
     public static class BatchOperationResult {
 
+        @Schema(description = "设备ID")
+        private String deviceId;
+
         @Schema(description = "功能的输出值")
         private Object result;
 
@@ -115,19 +118,23 @@ public class EdgeOperationsController {
         @Schema(description = "时间")
         private long time;
 
-        public static BatchOperationResult success(Object result) {
+        public static BatchOperationResult success(String deviceId,
+                                                   Object result) {
             return BatchOperationResult
                 .builder()
                 .successful(true)
+                .deviceId(deviceId)
                 .time(System.currentTimeMillis())
                 .result(result)
                 .build();
         }
 
-        public static BatchOperationResult fail(String message) {
+        public static BatchOperationResult fail(String deviceId,
+                                                String message) {
             return BatchOperationResult
                 .builder()
                 .successful(false)
+                .deviceId(deviceId)
                 .time(System.currentTimeMillis())
                 .message(message)
                 .build();
