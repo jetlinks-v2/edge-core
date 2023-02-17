@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# An example hook script to check the commit log message.
+# Called by "git commit" with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+# To enable this hook, rename this file to "commit-msg".
+
+# Uncomment the below to add a Signed-off-by line to the message.
+# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+# hook is more suited to it.
+#
+# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+
+# This example catches duplicate Signed-off-by lines.
+
+#test "" = "$(grep '^Signed-off-by: ' "$1" |
+#	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+#	echo >&2 Duplicate Signed-off-by lines.
+#	exit 1
+#}
+MSG=`awk '{printf("%s",$0)}' $1`
+if [[ $MSG =~ ^(feat|fix|test|refactor|docs|style|chore|ci|revert|perf|build)\(.*\):.*$ ]]
+then
+   echo "commit success!"
+else
+   echo "提交信息[${MSG}]格式错误!"
+   echo "前缀必须为其中的一种 [feat,fix,docs,style,refactor,test,chore,ci,revert,perf,build]"
+   echo "例如: feat(用户管理): 增加登陆验证码支持"
+   echo "Idea 建议使用Git Commit Template插件"
+       exit 1
+fi
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ ["$branch" = "master"] || ["$branch" = "develop"] ]; then
+  echo "不允许直接提交到$branch分支,请切换到新分支后提交."
+  exit 1
+fi
