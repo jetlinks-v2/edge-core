@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * frp下发信息.
@@ -28,6 +29,9 @@ public class FrpDistributeInfo {
 
     @Schema(description = "frp客户端配置")
     private List<FrpClientConfig> clientConfigList;
+
+    @Schema(description = "端口与域名的映射")
+    private Map<Integer, String> domainMapping;
 
     @Getter
     @AllArgsConstructor
