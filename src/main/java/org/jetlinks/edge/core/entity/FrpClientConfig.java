@@ -22,4 +22,7 @@ public class FrpClientConfig {
     @Schema(description = "服务端透传代理的端口")
     private int remotePort;
 
+    @Schema(description = "端口对应的域名")
+    private String domain;
+
 }
